@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Just Jokes</title>
+        <style>
+            body {
+                min-height: 100vh;
+                margin: 0;
+                padding: 2rem;
+                box-sizing: border-box;
+                display: flex;
+                flex-direction: column;
+                justify-content: center;
+                align-items: center;
+            }
+            h1 {
+                font-size: 4rem;
+                max-width: 95vw;
+                text-align: center;
+            }
+            h3 {
+                font-size: 2rem;
+                max-width: 95vw;
+                text-align: center;
+            }
+            button {
+                margin-top: 2rem;
+                padding: 0.5rem 1.2rem;
+                border: none;
+                border-radius: 999px;
+                font-size: 1rem;
+                cursor: pointer;
+                opacity: 0.6;
+                background-color: transparent;
+            }
+            a {
+                font-size: 1.25rem;
+                position: absolute;
+                right: 0;
+                bottom: 0;
+                width: 20vw;
+                height: 10vh;
+                display: flex;
+                justify-content: flex-end;
+                align-items: flex-end;
+                padding: 10px;
+            }
+        </style>
+    </head>
+    <body>
+        <h1 id="setup">Please try reloading</h1>
+        <h3 id="punchline">The API may not be working right now</h3>
+        <button id="next">Next joke</button>
+        <button id="toggle">Safe mode on</button>
+        <p><a id="selfPromo" href="https://github.com/Commander101-504">Check out my other projects</a></p>
+        <script>
+            let unsafeModeAllowed = false;
+            let hue = 1;
+            let safeMode = true;
+            
+            function changeColor() {
+                hue = Math.floor(Math.random() * 360) + 1
+                document.body.style.backgroundColor = "hsl(" + hue + ", 100%, 80%)";
+                document.querySelector("#setup").style.color = "hsl(" + hue + ", 100%, 30%)";
+                document.querySelector("#punchline").style.color = "hsl(" + hue + ", 100%, 30%)";
+                document.querySelector("#toggle").style.border = "2px solid hsl(" + hue + ", 100%, 30%)";
+                document.querySelector("#toggle").style.color = "hsl(" + hue + ", 100%, 30%)";
+                document.querySelector("#next").style.border = "2px solid hsl(" + hue + ", 100%, 30%)";
+                document.querySelector("#next").style.color = "hsl(" + hue + ", 100%, 30%)";
+                document.querySelector("#selfPromo").style.color = "hsl(" + hue + ", 100%, 30%)";
+            }
+            changeColor();
+
+            async function getData() {
+                const safeParam = safeMode ? "&safe-mode" : "";
+                const response = await fetch('https://v2.jokeapi.dev/joke/Any?type=twopart' + safeParam);
+                const data = await response.json();
+                document.querySelector("#setup").innerText = data.setup;
+                document.querySelector("#punchline").innerText = data.delivery;
+                changeColor();
+            }
+
+            document.querySelector("#toggle").addEventListener("click", () => {
+                if (!unsafeModeAllowed) {
+                    unsafeModeAllowed = confirm("You may see inappropriate jokes. Safe mode is recommended for most people.");
+                    if (!unsafeModeAllowed) return;
+                }
+                safeMode = !safeMode;
+                document.querySelector("#toggle").innerText = safeMode ? "Safe mode on" : "Safe mode off";
+                getData();
+            });
+
+            document.querySelector("#next").addEventListener("click", () => {
+                getData();
+            });
+
+            document.addEventListener("keydown", (e) => {
+                if (e.code === "Space") {
+                    e.preventDefault(); // stops the page from scrolling
+                    getData();
+                }
+            });
+
+            getData();
+        </script>
+    </body>
+</html>
